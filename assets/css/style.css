@@ -342,3 +342,99 @@ button:hover {
 }
 
 
+/* --- Responsive Design --- */
+
+@media (max-width: 1024px) {
+    .container {
+        padding: 0 1.5rem 3rem;
+    }
+    
+    nav {
+        margin: 1rem 0 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    h2 {
+        font-size: 1.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    nav {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.25rem;
+    }
+
+    nav a {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .card {
+        padding: 1.5rem;
+    }
+
+    /* Table responsive */
+    .table-container {
+        overflow-x: auto;
+        margin-top: 1rem;
+        -webkit-overflow-scrolling: touch;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+    }
+
+    table {
+        min-width: 600px;
+        margin-top: 0;
+    }
+
+    .login-card {
+        padding: 2rem;
+        margin: 1rem;
+        border-radius: 20px;
+    }
+
+    .login-card h2 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    nav {
+        padding: 0.8rem 0.5rem;
+    }
+
+    .nav-links a {
+        padding: 0.4rem 0.6rem;
+    }
+
+    .container {
+        padding: 0 1rem 2rem;
+    }
+
+    .card {
+        padding: 1.25rem;
+    }
+
+    #scanner {
+        height: 150px;
+    }
+
+    #form-ajout {
+        grid-template-columns: 1fr !important;
+        gap: 0.5rem !important;
+    }
+
+    #form-ajout button {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+}

@@ -79,23 +79,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['valider'])) {
 </div>
 
 
-<form method="POST" id="form-ajout">
-    <!-- Champ pour saisie manuelle -->
-    <input type="text" name="code_barre" id="code_barre" placeholder="Scanner ou saisir le code-barres" required>
-    <input type="number" name="quantite" placeholder="Quantité" required>
-    <button type="submit" name="ajouter">Ajouter</button>
-</form>
+<div class="card" style="margin-bottom: 2rem;">
+    <form method="POST" id="form-ajout" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; align-items: end;">
+        <div class="form-group" style="margin-bottom: 0;">
+            <label for="code_barre">Produit</label>
+            <input type="text" name="code_barre" id="code_barre" placeholder="Scanner ou saisir le code-barres" required>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+            <label for="quantite">Quantité</label>
+            <input type="number" name="quantite" id="quantite" placeholder="Quantité" value="1" min="1" required>
+        </div>
+        <button type="submit" name="ajouter" style="height: 50px;">Ajouter</button>
+    </form>
+</div>
 
-<h3>Panier</h3>
-<ul>
-    <?php foreach ($_SESSION['panier'] as $item): ?>
-        <li><?php echo $item['nom']; ?> x <?php echo $item['quantite']; ?> = <?php echo $item['sous_total_ht']; ?> CDF</li>
-    <?php endforeach; ?>
-</ul>
+<div class="card">
+    <h3>Panier actuel</h3>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th>PU</th>
+                    <th>Qté</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (empty($_SESSION['panier'])): ?>
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: var(--text-muted);">Le panier est vide</td>
+                    </tr>
+                <?php else: ?>
+                    <?php foreach ($_SESSION['panier'] as $item): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($item['nom']); ?></td>
+                            <td><?php echo number_format($item['prix_unitaire_ht'], 0, ',', ' '); ?> CDF</td>
+                            <td><?php echo $item['quantite']; ?></td>
+                            <td><strong><?php echo number_format($item['sous_total_ht'], 0, ',', ' '); ?> CDF</strong></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
 
-<form method="POST">
-    <button type="submit" name="valider">Valider la facture</button>
-</form>
+    <?php if (!empty($_SESSION['panier'])): ?>
+        <form method="POST" style="margin-top: 2rem; text-align: right;">
+            <button type="submit" name="valider" class="btn-primary">Valider la facture</button>
+        </form>
+    <?php endif; ?>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
 <script>
@@ -106,10 +140,10 @@ function startScanner() {
             type: "LiveStream",
             target: document.querySelector('#scanner'),
             constraints: {
-                width: { min: 640 },
-                height: { min: 480 },
+                width: { min: 640, ideal: 1280 },
+                height: { min: 480, ideal: 720 },
                 aspectRatio: { min: 1.33, max: 1.77 },
-                facingMode: "user" // Pour PC, on utilise la caméra frontale
+                facingMode: "environment" // Utilise la caméra arrière du téléphone
             }
         },
         locator: {
