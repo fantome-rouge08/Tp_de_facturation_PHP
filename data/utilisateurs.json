@@ -1,0 +1,26 @@
+[
+    {
+        "identifiant": "admin",
+        "mot_de_passe": "$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi",
+        "role": "Super Administrateur",
+        "nom_complet": "Administrateur",
+        "date_creation": "2026-04-23",
+        "actif": true
+    },
+    {
+        "identifiant": "caissier",
+        "mot_de_passe": "$2y$12$wo3gzhl2ybUt.Embh2jXC.rpHKuHf8/2yn7zQdY.pG8umov0KtFCO",
+        "role": "Caissier",
+        "nom_complet": "Caissier 1",
+        "date_creation": "2026-04-23",
+        "actif": true
+    },
+    {
+        "identifiant": "manager",
+        "mot_de_passe": "$2y$12$aahtis0CdiJUS.OBVSZ7BuvPNCjUTHwX03Jz8cEJx9.SlhiSLJW.i",
+        "role": "Manager",
+        "nom_complet": "Manager 1",
+        "date_creation": "2026-04-23",
+        "actif": true
+    }
+]

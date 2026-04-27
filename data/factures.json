@@ -1,0 +1,70 @@
+[
+    {
+        "id_facture": "FAC-20260423-001",
+        "date": "2026-04-23",
+        "heure": "07:07:46",
+        "caissier": "caissier",
+        "articles": [],
+        "total_ht": 0,
+        "tva": 0,
+        "total_ttc": 0
+    },
+    {
+        "id_facture": "FAC-20260423-002",
+        "date": "2026-04-23",
+        "heure": "07:07:50",
+        "caissier": "caissier",
+        "articles": [],
+        "total_ht": 0,
+        "tva": 0,
+        "total_ttc": 0
+    },
+    {
+        "id_facture": "FAC-20260423-003",
+        "date": "2026-04-23",
+        "heure": "07:08:31",
+        "caissier": "manager",
+        "articles": [],
+        "total_ht": 0,
+        "tva": 0,
+        "total_ttc": 0
+    },
+    {
+        "id_facture": "FAC-20260423-004",
+        "date": "2026-04-23",
+        "heure": "09:25:47",
+        "caissier": "caissier",
+        "articles": [],
+        "total_ht": 0,
+        "tva": 0,
+        "total_ttc": 0
+    },
+    {
+        "id_facture": "FAC-20260423-005",
+        "date": "2026-04-23",
+        "heure": "09:30:09",
+        "caissier": "caissier",
+        "articles": [],
+        "total_ht": 0,
+        "tva": 0,
+        "total_ttc": 0
+    },
+    {
+        "id_facture": "FAC-20260423-006",
+        "date": "2026-04-23",
+        "heure": "09:31:15",
+        "caissier": "caissier",
+        "articles": [
+            {
+                "code_barre": "3017620422003",
+                "nom": "Vain amour 1L",
+                "prix_unitaire_ht": 1200,
+                "quantite": 4,
+                "sous_total_ht": 4800
+            }
+        ],
+        "total_ht": 4800,
+        "tva": 864,
+        "total_ttc": 5664
+    }
+]
