@@ -39,7 +39,7 @@ Avant de lancer le projet, assurez-vous d’avoir installé :
 
 7. Accéder à l’application via l’URL :
    
-   http://localhost/Tp_de_facturation_PHO/
+   http://localhost/Tp_de_facturation_PHP/
 
 ---
 
