@@ -15,6 +15,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'verifier_produit') {
     exit;
 }
 
+$prefilled_code = $_GET['code'] ?? '';
+
 $message = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($_POST['code_barre']) && !empty($_POST['nom']) && is_numeric($_POST['prix_unitaire_ht'])) {
@@ -52,13 +54,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="alert alert-success"><?php echo $message; ?></div>
     <?php endif; ?>
 
-    <!-- Formulaire caché par défaut, affiché si le produit est inconnu -->
-    <div id="form-enregistrement" style="display: none; border-top: 2px solid var(--border); pt-4: 2rem; margin-top: 2rem;">
-        <h3 style="margin-bottom: 1.5rem;">Nouveau Produit détecté</h3>
+    <!-- Formulaire caché par défaut (sauf si code en paramètre) -->
+    <div id="form-enregistrement" style="<?php echo $prefilled_code ? 'display: block;' : 'display: none;'; ?> border-top: 2px solid var(--border); pt-4: 2rem; margin-top: 2rem;">
+        <h3 style="margin-bottom: 1.5rem;">Détails du Produit</h3>
         <form method="POST">
             <div class="form-group">
                 <label>Code-barres</label>
-                <input type="text" name="code_barre" id="input-code" readonly>
+                <input type="text" name="code_barre" id="input-code" value="<?php echo htmlspecialchars($prefilled_code); ?>" readonly>
             </div>
             <div class="form-group">
                 <label>Nom du produit</label>
@@ -91,26 +93,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
 <script>
 function startScanner() {
+    // Correctif pour les anciens navigateurs
+    if (navigator.mediaDevices === undefined) {
+        navigator.mediaDevices = {};
+    }
+    if (navigator.mediaDevices.getUserMedia === undefined) {
+        navigator.mediaDevices.getUserMedia = function(constraints) {
+            var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+            if (!getUserMedia) {
+                return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+            }
+            return new Promise(function(resolve, reject) {
+                getUserMedia.call(navigator, constraints, resolve, reject);
+            });
+        }
+    }
+
     Quagga.init({
         inputStream: {
             name: "Live",
             type: "LiveStream",
             target: document.querySelector('#scanner'),
             constraints: {
-                width: { min: 640 },
-                height: { min: 480 },
+                width: { min: 640, ideal: 1280 },
+                height: { min: 480, ideal: 720 },
                 facingMode: "user"
+            },
+            area: {
+                top: "10%", right: "10%", left: "10%", bottom: "10%"
             }
+        },
+        locator: {
+            patchSize: "medium",
+            halfSample: false
         },
         decoder: {
             readers: ["ean_reader", "ean_8_reader", "code_128_reader", "upc_reader"]
-        }
+        },
+        locate: true,
+        frequency: 20
     }, function(err) {
         if (!err) Quagga.start();
     });
 }
 
-startScanner();
+// Ne pas démarrer le scanner si on a déjà un code pré-rempli pour éviter la confusion
+if (!document.getElementById('input-code').value) {
+    startScanner();
+}
 
 Quagga.onDetected(function(data) {
     let code = data.codeResult.code;

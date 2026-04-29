@@ -23,6 +23,11 @@
                 <a href="<?php echo BASE_URL; ?>/modules/facturation/nouvelle-facture.php">Facturation</a>
                 <a href="<?php echo BASE_URL; ?>/modules/facturation/liste.php">Factures</a>
                 
+                <?php if ($role === 'Manager' || $role === 'Super Administrateur'): ?>
+                    <a href="<?php echo BASE_URL; ?>/rapports/rapport-journalier.php">Rapport Jour</a>
+                    <a href="<?php echo BASE_URL; ?>/rapports/rapport-mensuel.php">Rapport Mois</a>
+                <?php endif; ?>
+                
                 <?php if ($role === 'Super Administrateur'): ?>
                     <a href="<?php echo BASE_URL; ?>/modules/admin/gestion-comptes.php">Admin</a>
                 <?php endif; ?>

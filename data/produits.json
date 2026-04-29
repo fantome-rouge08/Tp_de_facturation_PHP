@@ -4,5 +4,21 @@
         "nom": "Vain amour 1L",
         "prix_unitaire_ht": 1200,
         "date_enregistrement": "2026-04-23"
+    },
+    {
+        "code_barre": "9136575808107",
+        "nom": "Alcool",
+        "prix_unitaire_ht": 3000,
+        "date_expiration": "09-12-2029",
+        "stock": 40,
+        "date_enregistrement": "2026-04-28"
+    },
+    {
+        "code_barre": "90377235",
+        "nom": "Jus Fanta 30cl",
+        "prix_unitaire_ht": 1000,
+        "date_expiration": "09-10-2027",
+        "stock": 100,
+        "date_enregistrement": "2026-04-28"
     }
 ]

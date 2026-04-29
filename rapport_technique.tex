@@ -1,0 +1,388 @@
+\documentclass[12pt,a4paper]{report}
+
+% --- Packages ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{lmodern}
+\usepackage{geometry}
+\geometry{hmargin=2.5cm,vmargin=2.5cm} % Marges optimisees pour atteindre 18 pages
+\usepackage{multicol} % Pour le glossaire compact
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usepackage{setspace}
+\setstretch{1.15} % Interligne reduit de 1.5 a 1.15 pour densifier le texte
+\usetikzlibrary{shapes.geometric, arrows}
+
+% --- Configuration des couleurs ---
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+% --- Style des codes source ---
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+% --- En-tête et pied de page ---
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Rapport Technique - Système de Facturation PHP}
+\rhead{UPC - FSI - 2025-2026}
+\cfoot{\thepage}
+
+\begin{document}
+
+% --- Page de Garde ---
+\begin{titlepage}
+    \centering
+    \vspace*{0.5cm}
+    {\scshape\Large UNIVERSITÉ PROTESTANTE AU CONGO \par}
+    {\scshape\large FACULTÉ DES SCIENCES INFORMATIQUES \par}
+    {\scshape\large KINSHASA/LINGWALA \par}
+    \vspace{2cm}
+    %\includegraphics[width=0.3\textwidth]{assets/img/logo.png} \par % Logo non trouve
+    \vspace{1cm}
+    {\scshape\Large Travail Pratique \par}
+    \vspace{1cm}
+    {\huge\bfseries SYSTÈME DE GESTION DE FACTURATION EN PHP \par}
+    \vspace{2cm}
+    
+    \begin{flushleft}
+    {\Large\bfseries Matière :} PROGRAMMATION WEB PHP \\
+    \vspace{0.8cm}
+    {\Large\bfseries Conçu par les étudiants :} \\
+    {\large 1. KAGHOMA KITSIPA John} \\
+    {\large 2. KIPAKA BAKARI Michel} \\
+    {\large 3. MATHE MWERO Ben} \\
+    \vspace{0.8cm}
+    {\Large\bfseries Promotion :} L2 LMD \\
+    \end{flushleft}
+    
+    \vfill
+    {\large Année Académique : 2025-2026 \par}
+\end{titlepage}
+
+\tableofcontents
+%\listoffigures % Supprime pour economiser une page entiere
+\newpage
+
+% --- Debut du contenu (Page 1 hors TOC) ---
+\chapter{Introduction Générale}
+\section{Contexte et Justification du Projet}
+L'ère numérique actuelle impose aux entreprises, quelle que soit leur taille, une mutation profonde de leurs processus opérationnels. Dans le contexte de la République Démocratique du Congo, et plus particulièrement à Kinshasa, la gestion des points de vente reste un défi majeur pour de nombreux entrepreneurs. La transition vers des outils numériques est souvent freinée par la complexité des solutions existantes ou par les coûts d'infrastructure.
+
+Le présent projet, réalisé dans le cadre du cours de Programmation Web PHP, vise à concevoir une solution de facturation légère, robuste et accessible. Le choix s'est porté sur une architecture basée sur PHP pour la logique serveur et JSON pour le stockage des données. Cette approche permet de s'affranchir de la lourdeur d'un serveur de base de données relationnelle comme MySQL, tout en conservant une structure de données organisée et persistante.
+
+\section{Problématique}
+La problématique centrale de ce travail réside dans la fiabilisation de l'acte de vente en magasin. Les méthodes de facturation manuelles souffrent de plusieurs lacunes critiques :
+\begin{itemize}
+    \item \textbf{Erreurs de calcul :} L'application manuelle des prix et des taxes (TVA) est source fréquente d'erreurs comptables.
+    \item \textbf{Lenteur opérationnelle :} En période d'affluence, la rédaction manuelle de factures pénalise la fluidité du service client.
+    \item \textbf{Manque de traçabilité :} Sans archive numérique, il est extrêmement complexe de réaliser des statistiques de vente ou de retrouver une facture ancienne.
+    \item \textbf{Sécurité des données :} Les registres papier sont vulnérables aux dégradations physiques et à la perte d'informations.
+\end{itemize}
+
+\section{Objectifs du Travail}
+L'objectif général est de mettre en place un "Système de Gestion de Facturation" (SGF) capable d'automatiser le processus de vente. De manière spécifique, le système doit :
+\begin{enumerate}
+    \item Assurer une authentification sécurisée des utilisateurs selon leurs rôles.
+    \item Permettre une gestion dynamique du catalogue de produits.
+    \item Intégrer un module de lecture de codes-barres pour accélérer la saisie.
+    \item Calculer automatiquement les montants HT, les taxes et le TTC.
+    \item Sauvegarder chaque transaction de manière persistante dans des fichiers JSON.
+    \item Offrir une interface utilisateur ergonomique et responsive.
+\end{enumerate}
+
+\section{Méthodologie de Réalisation}
+Pour la réalisation de ce projet, nous avons adopté une méthodologie inspirée du cycle en V, adaptée aux contraintes d'un projet étudiant :
+\begin{itemize}
+    \item \textbf{Analyse des besoins :} Identification des acteurs (Caissier, Admin) et de leurs besoins spécifiques.
+    \item \textbf{Modélisation des données :} Définition des structures JSON pour représenter les objets métiers (Utilisateur, Produit, Facture).
+    \item \textbf{Développement modulaire :} Séparation des fichiers selon leurs responsabilités (Logique, Interface, Données).
+    \item \textbf{Tests et Intégration :} Vérification de chaque fonctionnalité en environnement local (WAMP).
+\end{itemize}
+
+\section{Analyse de l'Architecture Logicielle}
+\subsection{Choix des Technologies}
+Le choix des technologies est un pilier fondamental de tout projet informatique. Pour ce système de facturation, nous avons opté pour un trio classique mais puissant : PHP, JSON et Vanilla JavaScript.
+
+\subsection{PHP (Hypertext Preprocessor)}
+PHP a été choisi pour sa maturité et sa simplicité de déploiement. En tant que langage côté serveur, il permet de gérer efficacement les sessions utilisateurs, de manipuler les fichiers sur le disque et d'appliquer la logique métier nécessaire aux calculs financiers. Son typage dynamique et sa large bibliothèque de fonctions natives (notamment pour le JSON) en ont fait l'outil idéal.
+
+\subsection{JSON (JavaScript Object Notation)}
+Le choix du format JSON comme "base de données" est une décision stratégique pour ce TP. Contrairement à XML, le JSON est plus léger et s'intègre nativement avec PHP via les fonctions \texttt{json\_encode} et \texttt{json\_decode}. Il permet de stocker des objets complexes sous forme de chaînes de caractères, ce qui facilite grandement la portabilité du projet. Aucun serveur SQL n'est requis, ce qui rend l'application "Plug and Play".
+
+\subsection{Vanilla CSS et JavaScript}
+Pour l'interface, nous avons évité l'utilisation de frameworks lourds. Le CSS pur (Vanilla CSS) a été utilisé pour créer une identité visuelle unique et légère. JavaScript a été sollicité pour la gestion dynamique du scanner de codes-barres, permettant une interaction en temps réel entre la caméra de l'utilisateur et le serveur PHP.
+
+\subsection{Organisation des Fichiers}
+L'organisation du code source a été pensée pour faciliter la maintenance et l'évolution future du système. Nous avons adopté une structure modulaire où chaque dossier a un rôle précis.
+
+\subsection{Le dossier /config}
+Ce dossier contient le fichier \texttt{config.php}. C'est le "cœur" de la configuration de l'application. Il définit les constantes globales telles que le taux de TVA, le chemin vers les fichiers de données et l'URL de base du projet. Centraliser ces informations permet de modifier le comportement de toute l'application en éditant un seul fichier.
+
+\subsection{Le dossier /data}
+Il contient la persistance du système. Trois fichiers principaux y sont stockés : \textit{utilisateurs.json}, \textit{produits.json} et \textit{factures.json}. Ces fichiers agissent comme des tables de base de données. Il est crucial que ce dossier possède les droits d'écriture pour le serveur PHP.
+
+\subsection{Le dossier /includes}
+Ce dossier regroupe les fonctions métier réutilisables. Au lieu de réécrire la logique de lecture des fichiers JSON sur chaque page, nous avons créé des fonctions telles que \texttt{lireProduits()} ou \texttt{sauvegarderFacture()} qui sont incluses via \texttt{require\_once}. Cela respecte le principe DRY (Don't Repeat Yourself).
+
+\subsection{Le dossier /modules}
+C'est ici que se trouve la logique spécifique à chaque fonctionnalité. Le module de facturation gère la création de factures, tandis que le module produits gère le catalogue. Cette séparation permet à plusieurs développeurs de travailler simultanément sur différentes parties du projet sans conflits majeurs.
+
+\chapter{Gestion et Structures de Données}
+\section{Philosophie du Stockage Flat-File}
+Le stockage dans des fichiers plats (flat-file) est une méthode alternative aux bases de données relationnelles. Dans notre système, chaque fichier JSON représente une entité. Cette approche simplifie la sauvegarde (un simple copier-coller du dossier \textit{data}) mais impose une rigueur particulière dans la gestion des accès concurrents.
+
+\section{Modélisation des Entités}
+\subsection{Entité Utilisateur}
+Un utilisateur est défini par ses identifiants et ses droits d'accès. La sécurité est assurée par le hachage des mots de passe.
+\begin{itemize}
+    \item \textbf{identifiant} (String) : Identifiant unique de connexion.
+    \item \textbf{mot\_de\_passe} (String) : Empreinte hachée via BCRYPT.
+    \item \textbf{role} (String) : Définit si l'utilisateur est un Administrateur ou un Caissier.
+    \item \textbf{actif} (Boolean) : Permet de désactiver un compte sans le supprimer.
+\end{itemize}
+
+\subsection{Entité Produit}
+Le catalogue est le pivot du système. Chaque produit doit être identifiable de manière unique.
+\begin{itemize}
+    \item \textbf{code\_barre} (String) : Identifiant scannable unique.
+    \item \textbf{designation} (String) : Nom commercial du produit.
+    \item \textbf{prix\_unitaire} (Float) : Prix de vente hors taxe.
+    \item \textbf{stock} (Integer) : Quantité disponible en magasin.
+\end{itemize}
+
+\subsection{Entité Facture}
+Une facture est un document complexe regroupant des données d'en-tête et une liste d'articles.
+\begin{itemize}
+    \item \textbf{id\_facture} (String) : Numéro unique généré selon le format FAC-AAAA-NNN.
+    \item \textbf{date} (DateTime) : Horodatage de la transaction.
+    \item \textbf{caissier} (String) : Nom de la personne ayant réalisé la vente.
+    \item \textbf{articles} (Array) : Liste d'objets contenant la désignation, la quantité et le prix au moment de la vente.
+    \item \textbf{totaux} (Object) : Calculs finaux (HT, TVA, TTC).
+\end{itemize}
+
+\section{Justification de la Sérialisation JSON}
+L'utilisation de la fonction \texttt{json\_encode(\$data, JSON\_PRETTY\_PRINT)} est essentielle. Le flag \texttt{PRETTY\_PRINT} assure que le fichier reste lisible par un humain, ce qui est crucial lors des phases de débogage. Lors de la lecture, \texttt{json\_decode(\$data, true)} transforme la chaîne en un tableau associatif PHP, permettant d'accéder aux données via des clés simples (ex: \texttt{\$produit['prix\_unitaire']}).
+
+\chapter{Description et Logique des Modules}
+\section{Module d'Authentification}
+\subsection{Gestion des Sessions}
+Le système utilise les sessions natives de PHP (\texttt{session\_start()}). Une session permet de maintenir l'état de l'utilisateur entre les différentes requêtes HTTP. Lors d'une connexion réussie, nous stockons l'ID de l'utilisateur et son rôle.
+\subsection{Processus de Login}
+Le script de connexion suit les étapes suivantes :
+\begin{enumerate}
+    \item Récupération des données POST du formulaire.
+    \item Chargement du fichier \textit{utilisateurs.json}.
+    \item Recherche de l'utilisateur par son identifiant.
+    \item Vérification du mot de passe via \texttt{password\_verify()}.
+    \item Si correct, initialisation des variables de session et redirection vers le dashboard.
+\end{enumerate}
+
+\section{Module de Facturation et Panier}
+\subsection{Le Panier Virtuel}
+Le panier n'est pas stocké dans un fichier tant que la facture n'est pas validée. Il réside dans la session (\texttt{\$\_SESSION['panier']}). Cela permet d'ajouter ou de retirer des articles sans impacter les données permanentes, offrant ainsi une grande fluidité à l'utilisateur.
+
+\subsection{Algorithme de calcul}
+Le calcul de la facture suit une logique rigoureuse :
+\begin{itemize}
+    \item Pour chaque article dans le panier : \texttt{Sous-total = Prix Unitaire * Quantité}.
+    \item \texttt{Total HT = Somme de tous les sous-totaux}.
+    \item \texttt{TVA = Total HT * (Taux TVA / 100)}.
+    \item \texttt{Total TTC = Total HT + TVA}.
+\end{itemize}
+Ces calculs sont effectués à chaque ajout d'article pour maintenir un affichage en temps réel du montant total.
+
+\section{Module de Gestion des Produits}
+Ce module permet aux administrateurs de maintenir à jour le catalogue. Il utilise des fonctions CRUD simples. Une attention particulière est portée à l'unicité du code-barre : avant chaque ajout, le système scanne le fichier JSON pour vérifier qu'aucun autre produit ne possède le même code.
+
+\chapter{Interface Utilisateur et Ergonomie}
+\section{Principes de Design UI}
+L'interface utilisateur (UI) a été conçue pour être "minimaliste". Dans un environnement de vente, la surcharge d'informations est une source d'erreurs. Nous avons privilégié :
+\begin{itemize}
+    \item \textbf{Contrastes élevés :} Texte sombre sur fond clair pour une lisibilité maximale sous un éclairage de magasin.
+    \item \textbf{Zones d'action larges :} Boutons de grande taille pour faciliter l'utilisation sur les écrans tactiles (tablettes).
+    \item \textbf{Retours visuels :} Utilisation de couleurs (vert pour succès, rouge pour erreur) pour confirmer les actions de l'utilisateur.
+\end{itemize}
+
+\section{Intégration du Scanner de Codes-Barres}
+L'intégration du scanner via la bibliothèque QuaggaJS est une valeur ajoutée majeure. Elle utilise l'API \texttt{getUserMedia} du navigateur pour accéder à la caméra. 
+\begin{enumerate}
+    \item \textbf{Initialisation :} Le script demande l'accès à la caméra.
+    \item \textbf{Scan :} Le flux vidéo est analysé en temps réel pour détecter des motifs de codes-barres (EAN-13 par exemple).
+    \item \textbf{Décodage :} Une fois le code identifié, une requête AJAX (fetch) est envoyée au serveur PHP pour récupérer les informations du produit.
+    \item \textbf{Mise à jour :} Si le produit est trouvé, le panier est rafraîchi sans recharger toute la page.
+\end{enumerate}
+
+\section{Diagramme de Flux}
+Le diagramme suivant détaille le cycle de vie d'une transaction de vente, de la détection du produit à l'archivage de la facture finale.
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[node distance=2.5cm]
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!20]
+\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!20]
+\tikzstyle{decision} = [diamond, aspect=2, minimum width=3.5cm, minimum height=1cm, text centered, draw=black, fill=yellow!20]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+\node (start) [startstop] {Ouverture Session Vente};
+\node (scan) [process, below of=start] {Scan Code-Barre ou Saisie};
+\node (check) [decision, below of=scan] {Produit en Stock ?};
+\node (add) [process, right of=check, xshift=3.5cm] {Ajout Panier Session};
+\node (total) [process, below of=add] {Calcul Totaux Temps Réel};
+\node (validate) [decision, below of=check, yshift=-2.5cm] {Valider Facture ?};
+\node (save) [process, below of=validate] {Écriture factures.json};
+\node (stop) [startstop, below of=save] {Fin Transaction / Impression};
+
+\draw [arrow] (start) -- (scan);
+\draw [arrow] (scan) -- (check);
+\draw [arrow] (check) -- node[anchor=south] {Oui} (add);
+\draw [arrow] (check) -- node[anchor=east] {Non} (scan);
+\draw [arrow] (add) -- (total);
+\draw [arrow] (total) |- (validate);
+\draw [arrow] (validate) -- node[anchor=east] {Oui} (save);
+\draw [arrow] (validate) -| node[anchor=south] {Non} (scan);
+\draw [arrow] (save) -- (stop);
+\end{tikzpicture}
+\caption{Diagramme de flux d'une transaction de vente complète}
+\label{fig:flux_vente}
+\end{figure}
+
+\chapter{Manuel d'Utilisation du Système}
+Ce chapitre détaille les procédures opérationnelles pour les différents profils d'utilisateurs.
+
+\section{Démarrage et Connexion}
+Pour lancer l'application, ouvrez votre navigateur et accédez à l'URL locale. Sur la page de garde :
+\begin{enumerate}
+    \item Entrez votre nom d'utilisateur (ex: admin).
+    \item Saisissez votre mot de passe sécurisé.
+    \item Une fois connecté, vous arrivez sur le Tableau de Bord affichant les statistiques du jour (Chiffre d'affaires, nombre de factures).
+\end{enumerate}
+
+\section{Opération de Vente (Profil Caissier)}
+Le caissier passe la majeure partie de son temps sur le module "Nouvelle Facture".
+\begin{enumerate}
+    \item Cliquez sur le bouton "Démarrer Scanner".
+    \item Présentez le code-barre du produit devant la caméra de l'ordinateur ou du smartphone.
+    \item Vérifiez que le produit s'affiche dans la liste en bas avec le prix correct.
+    \item Pour modifier une quantité, utilisez les boutons (+) ou (-) dans le tableau.
+    \item Une fois la liste terminée, cliquez sur "Valider la Facture". Un récapitulatif s'affiche pour confirmation.
+\end{enumerate}
+
+\section{Administration du Stock (Profil Admin)}
+Seuls les administrateurs ont accès à la gestion des produits.
+\begin{itemize}
+    \item \textbf{Ajouter un produit :} Accédez à l'onglet "Produits", cliquez sur "Ajouter". Il est impératif de renseigner le code-barre exact figurant sur l'emballage.
+    \item \textbf{Mise à jour des prix :} Vous pouvez modifier le prix d'un article existant. Notez que cette modification ne changera pas les factures déjà émises (les prix historiques sont conservés dans \textit{factures.json}).
+\end{itemize}
+
+\section{Difficultés Rencontrées et Solutions}
+\subsection{Gestion des conflits d'écriture}
+Le principal défi d'un système basé sur des fichiers JSON est la concurrence. Si deux caissiers enregistrent une facture à la milliseconde près, l'un risque d'écraser les données de l'autre.
+\textbf{Solution :} Nous avons implémenté la fonction \texttt{flock()} de PHP qui permet de verrouiller un fichier pendant l'opération d'écriture, forçant les autres requêtes à attendre la fin du verrou.
+
+\subsection{Compatibilité du scanner QuaggaJS}
+Certains navigateurs restreignent l'accès à la caméra pour des raisons de sécurité (HTTPS requis).
+\textbf{Solution :} Pour les tests en local (HTTP), nous avons dû configurer les navigateurs pour accepter les sources de confiance locales et ajouter un mode de saisie manuelle au clavier en cas de défaillance matérielle de la caméra.
+
+\subsection{Précision des calculs flottants}
+PHP peut parfois arrondir les calculs de manière imprécise avec les nombres à virgule flottante.
+\textbf{Solution :} Nous utilisons systématiquement la fonction \texttt{number\_format()} lors de l'affichage final pour garantir que les montants financiers respectent toujours deux décimales après la virgule.
+
+\chapter{Tests, Validation et Sécurité}
+\section{Protocole de Test}
+Chaque fonctionnalité a été soumise à des tests unitaires et d'intégration.
+\begin{itemize}
+    \item \textbf{Test de charge JSON :} Nous avons injecté 6 factures fictives pour vérifier que la lecture du fichier restait rapide sur un serveur standard.
+    \item \textbf{Test d'intégrité :} Vérification qu'un produit dont le stock est à zéro ne peut pas être ajouté à une facture.
+\end{itemize}
+
+\section{Sécurité du Système}
+\begin{itemize}
+    \item \textbf{Protection contre le vol de session :} L'ID de session est régénéré lors de chaque connexion.
+    \item \textbf{Hachage BCRYPT :} Même en cas de vol du fichier \textit{utilisateurs.json}, les mots de passe restent indéchiffrables grâce à la complexité de l'algorithme BCRYPT.
+    \item \textbf{Validation des entrées :} Toutes les données provenant de formulaires sont nettoyées pour éviter les injections de scripts malveillants (XSS).
+\end{itemize}
+
+\chapter{Conclusion et Perspectives}
+\section{Bilan du Travail}
+Ce projet a été une opportunité exceptionnelle de mettre en pratique les notions théoriques abordées en cours de Programmation Web. Nous avons réussi à créer un système de facturation complet, léger et fonctionnel, capable de répondre aux besoins réels d'une petite entreprise. L'utilisation innovante du JSON nous a permis d'explorer les limites et les avantages des bases de données plates.
+
+\section{Pistes d'Amélioration}
+Le système actuel constitue une base solide mais pourrait évoluer vers :
+\begin{itemize}
+    \item \textbf{Migration MySQL :} Pour supporter une volumétrie de données beaucoup plus importante.
+    \item \textbf{Génération de PDF :} Création automatique de factures formatées pour l'impression via Dompdf.
+    \item \textbf{Reporting Statistique :} Ajout de graphiques de vente mensuels.
+    \item \textbf{Multi-sites :} Synchronisation des données entre plusieurs magasins via une API.
+\end{itemize}
+
+\section{Glossaire Technique}
+\begin{multicols}{2}
+\begin{description}
+    \item[AJAX :] Asynchronous JavaScript and XML. Technique de développement web permettant de mettre à jour des parties d'une page web sans rechargement.
+    \item[BCRYPT :] Algorithme de hachage de mots de passe hautement sécurisé.
+    \item[BCRYPT :] Algorithme de hachage de mots de passe hautement sécurisé.
+    \item[CSS :] Cascading Style Sheets. Langage utilisé pour mettre en forme les pages web.
+    \item[DRY :] Don't Repeat Yourself. Principe de programmation visant à éviter la répétition de code.
+    \item[HTTPS :] HyperText Transfer Protocol Secure. Version sécurisée du protocole de transfert hypertexte.
+    \item[JSON :] JavaScript Object Notation. Format de données textuel léger et facile à échanger.
+    \item[LMD :] Licence, Master, Doctorat. Système d'organisation des études supérieures.
+    \item[PHP :] Hypertext Preprocessor. Langage de script côté serveur utilisé pour le développement web.
+    \item[Responsive Design :] Conception web permettant d'adapter l'affichage d'un site à la taille de l'écran.
+    \item[TVA :] Taxe sur la Valeur Ajoutée.
+    \item[UPC :] Université Protestante au Congo.
+    \item[XSS :] Cross-Site Scripting. Faille de sécurité permettant d'injecter des scripts malveillants dans une application.
+\end{description}
+\end{multicols}
+
+\chapter{Annexes : Extraits de Code Source}
+\section{Logique de Configuration (\texttt{config.php})}
+\begin{lstlisting}[language=PHP]
+<?php
+define('TVA_RATE', 0.18);
+define('DATA_PATH', __DIR__ . '/../data/');
+define('PRODUITS_FILE', DATA_PATH . 'produits.json');
+define('FACTURES_FILE', DATA_PATH . 'factures.json');
+define('UTILISATEURS_FILE', DATA_PATH . 'utilisateurs.json');
+\end{lstlisting}
+
+\section{Gestion des Produits (\texttt{fonctions-produits.php})}
+\begin{lstlisting}[language=PHP]
+function chercherProduit($code_barre) {
+    $produits = lireProduits();
+    $code_barre = trim($code_barre);
+    foreach ($produits as $produit) {
+        if (trim($produit['code_barre']) === $code_barre) {
+            return $produit;
+        }
+    }
+    return null;
+}
+\end{lstlisting}
+
+\end{document}

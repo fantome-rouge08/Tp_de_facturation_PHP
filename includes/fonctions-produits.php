@@ -21,8 +21,9 @@ function ajouterProduit($produit) {
 
 function chercherProduit($code_barre) {
     $produits = lireProduits();
+    $code_barre = trim($code_barre);
     foreach ($produits as $produit) {
-        if ($produit['code_barre'] === $code_barre) {
+        if (trim($produit['code_barre']) === $code_barre) {
             return $produit;
         }
     }

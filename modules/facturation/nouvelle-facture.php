@@ -134,6 +134,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['valider'])) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
 <script>
 function startScanner() {
+    // Correctif pour les anciens navigateurs
+    if (navigator.mediaDevices === undefined) {
+        navigator.mediaDevices = {};
+    }
+    if (navigator.mediaDevices.getUserMedia === undefined) {
+        navigator.mediaDevices.getUserMedia = function(constraints) {
+            var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+            if (!getUserMedia) {
+                return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+            }
+            return new Promise(function(resolve, reject) {
+                getUserMedia.call(navigator, constraints, resolve, reject);
+            });
+        }
+    }
+
     Quagga.init({
         inputStream: {
             name: "Live",
@@ -142,26 +158,31 @@ function startScanner() {
             constraints: {
                 width: { min: 640, ideal: 1280 },
                 height: { min: 480, ideal: 720 },
-                aspectRatio: { min: 1.33, max: 1.77 },
-                facingMode: "environment" // Utilise la caméra arrière du téléphone
+                facingMode: "user" // Utilise la webcam du PC
+            },
+            area: {
+                top: "10%",    
+                right: "10%",  
+                left: "10%",   
+                bottom: "10%"  
             }
         },
         locator: {
             patchSize: "medium",
-            halfSample: true
+            halfSample: false, // Plus précis (désactivé pour mieux lire les petits détails)
+            workers: 4
         },
         decoder: {
             readers: [
-                "ean_reader",      // Très commun pour les produits (EAN-13)
-                "ean_8_reader",    // Variantes plus courtes
-                "code_128_reader", // Courant dans la logistique
-                "code_39_reader",
-                "upc_reader",
-                "upc_e_reader"
+                "ean_reader",
+                "ean_8_reader",
+                "code_128_reader",
+                "upc_reader"
             ],
             multiple: false
         },
-        locate: true
+        locate: true,
+        frequency: 20 // Scan plus souvent (20 fois par seconde au lieu de 10)
     }, function(err) {
         if (err) {
             console.error(err);
@@ -180,33 +201,43 @@ Quagga.onDetected(function(data) {
     
     var code = data.codeResult.code;
     
-    // Si c'est un EAN-13, on vérifie qu'il a bien 13 chiffres
-    // (Optionnel : vous pouvez ajouter une validation de checksum ici)
-    
+    // Validation simple pour EAN-13 (souvent 13 chiffres)
+    if (code.length < 8) return; 
+
     Quagga.stop();
     
+    // Feedback visuel immédiat (vibration si supporté)
+    if (navigator.vibrate) navigator.vibrate(100);
+
     fetch('?action=chercher_produit&code=' + code)
         .then(r => r.json())
         .then(p => {
             if (p) {
                 document.getElementById('resultat').innerHTML = `
-                    <div style="background: var(--primary); color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; animation: slideDown 0.3s ease;">
+                    <div style="background: #10b981; color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; animation: slideDown 0.3s ease; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
                         <div style="font-size: 0.8rem; opacity: 0.9;">Produit identifié</div>
-                        <div style="font-size: 1.1rem; font-weight: 700;">${p.nom}</div>
-                        <div style="font-size: 1rem;">${p.prix_unitaire_ht} CDF</div>
+                        <div style="font-size: 1.2rem; font-weight: 700;">${p.nom}</div>
+                        <div style="font-size: 1.1rem;">${p.prix_unitaire_ht} CDF</div>
                     </div>
                 `;
                 document.getElementById('code_barre').value = p.code_barre;
+                // Auto-focus sur la quantité pour aller vite
+                document.getElementById('quantite').focus();
             } else {
                 document.getElementById('resultat').innerHTML = `
-                    <div style="background: #ef4444; color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                        <div style="font-size: 0.8rem; opacity: 0.9;">Code scanné : ${code}</div>
-                        <div style="font-weight: 700;">Produit inconnu dans la base</div>
-                        <div style="font-size: 0.8rem; margin-top: 5px;">Vérifiez que le produit est enregistré.</div>
+                    <div style="background: #f59e0b; color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; animation: shake 0.5s ease;">
+                        <div style="font-size: 0.8rem; opacity: 0.9;">Code scanné : <strong>${code}</strong></div>
+                        <div style="font-weight: 700; font-size: 1.1rem;">Produit inconnu</div>
+                        <div style="margin-top: 10px;">
+                            <a href="../produits/enregistrer.php?code=${code}" class="btn" style="background: white; color: #f59e0b; padding: 5px 10px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">
+                                ➕ Enregistrer ce produit
+                            </a>
+                        </div>
                     </div>
                 `;
+                document.getElementById('code_barre').value = code;
             }
-            setTimeout(startScanner, 2500); // Délai pour laisser le temps de voir le résultat
+            setTimeout(startScanner, 3000); 
         });
 });
 </script>
