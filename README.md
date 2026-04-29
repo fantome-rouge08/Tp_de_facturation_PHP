@@ -45,10 +45,10 @@ Avant de lancer le projet, assurez-vous d’avoir installé :
 
 4. IDENTIFIANTS PAR DÉFAUT
 
-Compte super administrateur :
+Exemple : Compte caissier
 
-- Nom d’utilisateur : admin
-- Mot de passe : password 
+- Nom d’utilisateur : caissier
+- Mot de passe : caissier123
 
 ---
 
